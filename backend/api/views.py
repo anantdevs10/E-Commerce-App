@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from .models import Product, Category, Brand
 from .serializers import (
     ProductSerializer,
     CategorySerializer,
     BrandSerializer,
+    RegisterSerializer,
 )
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -41,3 +42,8 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class BrandViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+
+    serializer_class = RegisterSerializer
