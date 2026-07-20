@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Product, Category, Brand
 from .serializers import (
     ProductSerializer,
@@ -11,6 +11,8 @@ from .serializers import (
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
+
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = Product.objects.all()
@@ -48,10 +50,3 @@ class BrandViewSet(viewsets.ReadOnlyModelViewSet):
 class RegisterView(generics.CreateAPIView):
 
     serializer_class = RegisterSerializer
-
-
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-
-    permission_classes = [IsAuthenticated]
-
-    serializer_class = ProductSerializer
