@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Product, Category, Brand
+from .models import Product, Category, Brand, CartItem
 from .serializers import (
     ProductSerializer,
     CategorySerializer,
     BrandSerializer,
     RegisterSerializer,
+    CartItemSerializer
 )
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -50,3 +51,24 @@ class BrandViewSet(viewsets.ReadOnlyModelViewSet):
 class RegisterView(generics.CreateAPIView):
 
     serializer_class = RegisterSerializer
+
+class CartView(generics.ListCreateAPIView):
+
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_quesryset(self):
+        return CartItem.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class CartItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CartItem.objects.filter(
+            user=self.request.user
+        )

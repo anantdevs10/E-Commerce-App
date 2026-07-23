@@ -1,10 +1,20 @@
 import axios from "axios";
-//http client used to make requests to APIs
 
 const api = axios.create({
     baseURL: "http://127.0.0.1:8000/api/",
 });
-// creates a custom instance called api so iusntead of writing  axios.get("http://127.0.0.1:8000/api/products/") we can just write api.get("products")
+
+// acts as security guard, checks every request has a JWT toKEN, and adds an authorization header.
+api.interceptors.request.use((config) => {
+
+    const token = localStorage.getItem("access");
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+
+});
 
 export default api;
-//allows api instance be used in other files

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Catalogue from "./pages/Catalogue";
 import Login from "./pages/Login";
+import Catalogue from "./pages/Catalogue";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
@@ -15,9 +15,9 @@ return(
 
 <Routes>
 
-<Route path="/" element={<Catalogue />} />
+<Route path="/" element={<Login />} />
 
-<Route path="/login" element={<Login />} />
+<Route path="/catalogue" element={<Catalogue />} />
 
 <Route path="/register" element={<Register />} />
 

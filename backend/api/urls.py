@@ -4,6 +4,8 @@ from .views import (
     ProductViewSet,
     CategoryViewSet,
     BrandViewSet,
+    CartView,
+    CartItemDetailView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -24,4 +26,6 @@ urlpatterns += [
     path("register/", RegisterView.as_view()),
     path("token/", TokenObtainPairView.as_view()),
     path("token/refresh/", TokenRefreshView.as_view()),
+    path("cart/", CartView.as_view()),
+    path("cart/items/<int:pk>/", CartItemDetailView.as_view()),
 ]
