@@ -5,7 +5,16 @@ import Catalogue from "./pages/Catalogue";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
-// React router watches the url
+import Navbar from "./components/Navbar.jsx";
+
+function Layout({ children }) {
+    return (
+        <div className="min-h-screen bg-paper font-body">
+            <Navbar />
+            {children}
+        </div>
+    );
+}
 
 function App(){
 
@@ -17,13 +26,13 @@ return(
 
 <Route path="/" element={<Login />} />
 
-<Route path="/catalogue" element={<Catalogue />} />
-
 <Route path="/register" element={<Register />} />
 
-<Route path="/cart" element={<Cart />} />
+<Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
 
-<Route path="/product/:id" element={<ProductDetail />} />
+<Route path="/cart" element={<Layout><Cart /></Layout>} />
+
+<Route path="/product/:id" element={<Layout><ProductDetail /></Layout>} />
 
 </Routes>
 

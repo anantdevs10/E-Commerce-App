@@ -2,7 +2,7 @@
 venv/
 __pycache__/
 *.pyc
-db.sqlite3
+db.mysql
 
 # Node
 node_modules/
