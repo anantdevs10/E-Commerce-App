@@ -5,7 +5,7 @@ from .views import (
     CategoryViewSet,
     BrandViewSet,
     CartView,
-    CartItemDetailView,
+    CartItemDetailView, OrderListCreateView, OrderDetailView, OrderStatusUpdateView, OrderReorderView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -28,4 +28,8 @@ urlpatterns += [
     path("token/refresh/", TokenRefreshView.as_view()),
     path("cart/", CartView.as_view()),
     path("cart/items/<int:pk>/", CartItemDetailView.as_view()),
+    path("orders/", OrderListCreateView.as_view()),
+    path("orders/<int:pk>/", OrderDetailView.as_view()),
+    path("orders/<int:pk>/status/", OrderStatusUpdateView.as_view()),
+    path("orders/<int:pk>/reorder/", OrderReorderView.as_view()),
 ]
