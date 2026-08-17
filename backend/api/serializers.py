@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Category, Brand, CartItem, Order, OrderItem
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address
 from django.contrib.auth.models import User
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -77,3 +77,21 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ["id", "status", "created_at", "updated_at", "items"]
         read_only_fields = ["id", "status", "created_at", "updated_at", "items"]
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ["id", "label", "line1", "line2", "city", "postcode", "country", "is_default"]
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True) #one to one relationship
+    email = serializers.CharField(source="user.email", read_only=True)
+
+    # nested serializer
+    # embedded inside the Profile response. read_only because addresses
+    # are created/edited through their own dedicated endpoint, not through profile.
+    addresses = AddressSerializer(source="user.addresses", many=True, read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ["username", "email", "phone_number", "bio", "addresses"]

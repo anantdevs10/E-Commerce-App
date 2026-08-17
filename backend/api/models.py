@@ -84,13 +84,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-
-    # SET_NULL (not CASCADE): if a product is deleted later, keep the
-    # order history intact — just lose the live link to the product.
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-
-    # Snapshots taken at purchase time — these never change afterward,
-    # even if the live product's name or price changes.
     product_name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
@@ -98,3 +92,32 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product_name}"
 
+class Profile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="profile"
+    )
+    phone_number = models.CharField(max_length=20, blank=True)
+    bio = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
+
+
+class Address(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="addresses"
+    )
+    label = models.CharField(max_length=50, blank=True)  # e.g. "Home", "Work"
+    line1 = models.CharField(max_length=200)
+    line2 = models.CharField(max_length=200, blank=True)
+    city = models.CharField(max_length=100)
+    postcode = models.CharField(max_length=20)
+    country = models.CharField(max_length=100)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.label or 'Address'} — {self.user.username}"

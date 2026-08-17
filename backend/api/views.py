@@ -3,10 +3,11 @@ from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Product, Category, Brand, CartItem, Order, OrderItem
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address
 from .serializers import (
     ProductSerializer, CategorySerializer, BrandSerializer,
     RegisterSerializer, CartItemSerializer, OrderSerializer,
+    ProfileSerializer, AddressSerializer,
 )
 from django.db import transaction
 
@@ -256,3 +257,33 @@ class OrderReorderView(generics.GenericAPIView):
                 added.append(product.name)
 
         return Response({"added": added, "skipped_out_of_stock": skipped})
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Self-healing: fetch the profile, or silently create a blank
+        # one if this user has never had one before.
+        profile, created = Profile.objects.get_or_create(user=self.request.user)
+        return profile
+
+
+class AddressListCreateView(generics.ListCreateAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Own data only — same pattern as CartView and OrderListCreateView
+        return Address.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
