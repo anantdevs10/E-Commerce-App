@@ -3,13 +3,19 @@ from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification
 from .serializers import (
     ProductSerializer, CategorySerializer, BrandSerializer,
     RegisterSerializer, CartItemSerializer, OrderSerializer,
-    ProfileSerializer, AddressSerializer,
+    ProfileSerializer, AddressSerializer, OfferSerializer, WishlistSerializer,
+    NotificationSerializer
 )
 from django.db import transaction
+from decimal import Decimal
+from django.utils import timezone
+from rest_framework.views import APIView
+
+
 
 
 #define API ENDPOINTS IN THE CODE
@@ -287,3 +293,91 @@ class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Address.objects.filter(user=self.request.user)
+
+
+class OfferListView(generics.ListAPIView):
+    serializer_class = OfferSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        now = timezone.now()
+        return Offer.objects.filter(start_date__lte=now, end_date__gte=now)
+
+class RecommendationsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        product_id = request.GET.get("product")
+
+        if not product_id:
+            return Response({"detail": "product query param is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        target = get_object_or_404(Product, pk=product_id)
+
+        # All prodcuts which are not stock amount 0
+        candidates = Product.objects.exclude(pk=target.id).filter(stock__gt=0)
+
+        target_words = set(target.description.lower().split())
+        scored = []
+
+        for candidate in candidates:
+            score = 0
+
+            if candidate.category_id == target.category_id:
+                score += 3
+
+            if candidate.brand_id == target.brand_id:
+                score += 2
+
+            if target.price > 0:
+                price_diff_ratio = abs(candidate.price - target.price) / target.price
+                if price_diff_ratio <= Decimal("0.2"):  # within 20% of original price
+                    score += 1
+
+            candidate_words = set(candidate.description.lower().split())
+            if target_words & candidate_words:  # any shared words at all
+                score += 1
+
+            if score > 0:
+                scored.append((score, candidate))
+
+        scored.sort(key=lambda pair: pair[0], reverse=True) # sroting from top to bottom
+        top_products = [product for score, product in scored[:5]] #picked the bets 5
+
+        serializer = ProductSerializer(top_products, many=True) # fetch the object data of the 5 products and convert to JSON
+        return Response(serializer.data) #send the data to the frontend
+
+class WishlistView(generics.ListCreateAPIView):
+    serializer_class = WishlistSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class WishlistDetailView(generics.DestroyAPIView):
+    serializer_class = WishlistSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user)
+
+
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by("-created_at")
+
+
+class NotificationDetailView(generics.UpdateAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["patch"]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)

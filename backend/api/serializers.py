@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification
 from django.contrib.auth.models import User
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -95,3 +96,29 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["username", "email", "phone_number", "bio", "addresses"]
+
+
+class OfferSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only = True)
+    discounted_price = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Offer
+        fields = ["id", "product", "discount_percentage", "discounted_price", "start_date", "end_date"]
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), source="product", write_only=True
+    )
+
+    class Meta:
+        model = Wishlist
+        fields = ["id", "product", "product_id", "created_at"]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "message", "product", "is_read", "created_at"]
+        read_only_fields = ["id", "message", "product", "created_at"]

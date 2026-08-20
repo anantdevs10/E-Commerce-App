@@ -5,9 +5,10 @@ from .views import (
     ProductViewSet, CategoryViewSet, BrandViewSet,
     CartView, CartItemDetailView,
     OrderListCreateView, OrderDetailView, OrderStatusUpdateView, OrderReorderView,
-    ProfileView, AddressListCreateView, AddressDetailView,
+    ProfileView, AddressListCreateView, AddressDetailView, OfferListView, RecommendationsView, WishlistView, WishlistDetailView,
+    NotificationListView, NotificationDetailView
 )
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView 
 from django.urls import path
 
 router = DefaultRouter()
@@ -29,4 +30,10 @@ urlpatterns += [
     path("profile/", ProfileView.as_view()),
     path("addresses/", AddressListCreateView.as_view()),
     path("addresses/<int:pk>/", AddressDetailView.as_view()),
+    path("offers/", OfferListView.as_view()),
+    path("recommendations/", RecommendationsView.as_view()),
+    path("wishlist/", WishlistView.as_view()),
+    path("wishlist/<int:pk>/", WishlistDetailView.as_view()),
+    path("notifications/", NotificationListView.as_view()),
+    path("notifications/<int:pk>/", NotificationDetailView.as_view()),
 ]
