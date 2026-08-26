@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404
+import re
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification, get_effective_price
 from .serializers import (
     ProductSerializer, CategorySerializer, BrandSerializer,
     RegisterSerializer, CartItemSerializer, OrderSerializer,
@@ -14,8 +15,7 @@ from django.db import transaction
 from decimal import Decimal
 from django.utils import timezone
 from rest_framework.views import APIView
-
-
+from .chatbot_functions import get_order_status, check_stock, get_active_offers
 
 
 #define API ENDPOINTS IN THE CODE
@@ -171,7 +171,7 @@ class OrderListCreateView(generics.ListCreateAPIView):
                     order=order,
                     product=product,
                     product_name=product.name,
-                    price=product.price,
+                    price=get_effective_price(product.price),
                     quantity=item.quantity,
                 )
 
@@ -381,3 +381,53 @@ class NotificationDetailView(generics.UpdateAPIView):
 
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user)
+
+class ChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        message = request.data.get("message", "").lower()
+
+        # Intent 1: order status — look for "order" followed by a number
+        order_match = re.search(r"order\s*#?(\d+)", message)
+        if order_match:
+            order_id = int(order_match.group(1))
+            result = get_order_status(request.user, order_id)  # goes through the controlled function
+            if result:
+                reply = f"Order #{result['id']} is currently '{result['status']}'."
+            else:
+                reply = f"I couldn't find order #{order_id} on your account."
+            return Response({"reply": reply})
+
+        # Intent 2: stock check
+        if "stock" in message or "available" in message:
+            candidate_words = [
+                w.strip("?.,!") for w in message.split() if len(w.strip("?.,!")) > 3
+            ]
+            product = None
+            for word in candidate_words:
+                product = check_stock(word)
+                if product:
+                    break
+            if product:
+                reply = (
+                    f"{product.name} has {product.stock} in stock."
+                    if product.stock > 0 else f"{product.name} is currently out of stock."
+                )
+            else:
+                reply = "Tell me the product name and I'll check stock for you."
+            return Response({"reply": reply})
+
+        # Intent 3: offers
+        if any(word in message for word in ["offer", "discount", "deal", "sale"]):
+            offers = get_active_offers()[:5]
+            if offers:
+                names = ", ".join(o.product.name for o in offers)
+                reply = f"Current offers: {names}."
+            else:
+                reply = "There are no active offers right now."
+            return Response({"reply": reply})
+
+        # Fallback
+        reply = "I can help with order status (try 'status of order 12'), stock checks, or current offers."
+        return Response({"reply": reply})

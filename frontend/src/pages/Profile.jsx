@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/api";
 
 function Profile() {
@@ -43,9 +44,13 @@ function Profile() {
         <div className="max-w-xl mx-auto px-8 py-10">
 
             <h1 className="font-display text-2xl font-semibold mb-1">Profile</h1>
-            <p className="text-sm text-ink/50 mb-8">{profile.username} · {profile.email}</p>
+            <p className="text-sm text-ink/50 mb-2">{profile.username} · {profile.email}</p>
 
-            <form onSubmit={handleSave}>
+            <Link to="/addresses" className="text-sm text-moss font-medium hover:underline">
+                Manage saved addresses →
+            </Link>
+
+            <form onSubmit={handleSave} className="mt-8">
 
                 <label className="block text-sm font-medium mb-1" htmlFor="phone">
                     Phone number

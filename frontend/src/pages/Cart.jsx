@@ -57,7 +57,7 @@ function Cart() {
     };
 
     const subtotal = items.reduce(
-        (sum, item) => sum + Number(item.product.price) * item.quantity,
+        (sum, item) => sum + Number(item.product.effective_price) * item.quantity,
         0
     );
 
@@ -90,7 +90,14 @@ function Cart() {
 
                         <div>
                             <p className="font-medium">{item.product.name}</p>
-                            <p className="text-sm text-ink/50 font-mono">£{item.product.price}</p>
+                            <p className="text-sm text-ink/50 font-mono">
+                                £{Number(item.product.effective_price).toFixed(2)}
+                                {item.product.active_discount_percentage && (
+                                    <span className="ml-2 line-through text-ink/30">
+                                        £{Number(item.product.price).toFixed(2)}
+                                    </span>
+                                )}
+                            </p>
                         </div>
 
                         <div className="flex items-center gap-4">

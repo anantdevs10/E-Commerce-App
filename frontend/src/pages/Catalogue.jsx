@@ -136,7 +136,21 @@ function Catalogue() {
                         <p className="text-sm text-ink/60 mb-4 flex-1">{product.description}</p>
 
                         <div className="flex items-center justify-between mb-4">
-                            <span className="font-mono text-sm">£{product.price}</span>
+                            {product.active_discount_percentage ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="font-mono text-sm line-through text-ink/40">
+                                        £{Number(product.price).toFixed(2)}
+                                    </span>
+                                    <span className="font-mono text-sm text-moss font-semibold">
+                                        £{Number(product.effective_price).toFixed(2)}
+                                    </span>
+                                    <span className="text-xs bg-moss text-paper px-2 py-0.5 rounded-sm">
+                                        {product.active_discount_percentage}% off
+                                    </span>
+                                </div>
+                            ) : (
+                                <span className="font-mono text-sm">£{Number(product.price).toFixed(2)}</span>
+                            )}
                             <span className={`text-xs ${product.stock > 0 ? "text-moss" : "text-red-700"}`}>
                                 {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
                             </span>

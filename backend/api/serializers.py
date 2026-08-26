@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification
+from .models import Product, Category, Brand, CartItem, Order, OrderItem, Profile, Address, Offer, Wishlist, Notification, get_active_offer, get_effective_price
 from django.contrib.auth.models import User
 
 
@@ -7,6 +7,13 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
+
+    def get_effective_price(self, obj):
+        return get_effective_price(obj)
+
+    def get_active_discount_percentage(self, obj):
+        offer = get_active_offer(obj)
+        return offer.discount_percentage if offer else None
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import NotificationBell from "./NotificationBell";
 
 function Navbar() {
 
@@ -35,6 +36,12 @@ function Navbar() {
                 <Link to="/wishlist" className="nav-link">
                     Wishlist
                 </Link>
+
+                <Link to="/profile" className="text-ink/70 hover:text-moss transition-colors">
+                    Profile
+                </Link>
+
+                <NotificationBell />
 
                 <button
                     onClick={handleLogout}

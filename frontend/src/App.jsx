@@ -11,12 +11,14 @@ import Profile from "./pages/Profile";
 import AddressBook from "./pages/AddressBook";
 import Navbar from "./components/Navbar";
 import Wishlist from "./pages/WishList";
+import ChatWidget from "./components/ChatWidget";
 
 function Layout({ children }) {
     return (
         <div className="min-h-screen bg-paper font-body">
             <Navbar />
             {children}
+            <ChatWidget/>
         </div>
     );
 }
@@ -47,7 +49,7 @@ return(
 
 <Route path="/addresses" element={<Layout><AddressBook /></Layout>} />
 
-<Route path="/wishlist" element={<Wishlist />} />
+<Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
 
 </Routes>
 

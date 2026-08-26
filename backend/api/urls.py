@@ -6,10 +6,12 @@ from .views import (
     CartView, CartItemDetailView,
     OrderListCreateView, OrderDetailView, OrderStatusUpdateView, OrderReorderView,
     ProfileView, AddressListCreateView, AddressDetailView, OfferListView, RecommendationsView, WishlistView, WishlistDetailView,
-    NotificationListView, NotificationDetailView
+    NotificationListView, NotificationDetailView, ChatView
 )
+
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView 
 from django.urls import path
+
 
 router = DefaultRouter()
 router.register("products", ProductViewSet, basename="products")
@@ -36,4 +38,5 @@ urlpatterns += [
     path("wishlist/<int:pk>/", WishlistDetailView.as_view()),
     path("notifications/", NotificationListView.as_view()),
     path("notifications/<int:pk>/", NotificationDetailView.as_view()),
+    path("chat/", ChatView.as_view()),
 ]
