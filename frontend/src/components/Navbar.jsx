@@ -24,8 +24,16 @@ function Navbar() {
                     Catalogue
                 </Link>
 
+                <Link to="/orders" className="text-ink/70 hover:text-moss transition-colors">
+                    Orders
+                </Link>
+
                 <Link to="/cart" className="text-ink/70 hover:text-moss transition-colors">
                     Cart
+                </Link>
+
+                <Link to="/wishlist" className="nav-link">
+                    Wishlist
                 </Link>
 
                 <button

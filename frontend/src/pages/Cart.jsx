@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/api";
 
 function Cart() {
 
+    const navigate = useNavigate();
+
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [checkingOut, setCheckingOut] = useState(false);
 
     const fetchCart = () => {
         api.get("cart/")
@@ -36,6 +39,20 @@ function Cart() {
             fetchCart();
         } catch {
             alert("Could not remove item.");
+        }
+    };
+
+    // This is the new piece. It calls checkout, then uses the order id
+    // the backend returns to navigate straight to that order's tracking page.
+    const handleCheckout = async () => {
+        setCheckingOut(true);
+        try {
+            const response = await api.post("orders/");
+            navigate(`/orders/${response.data.id}`);
+        } catch (err) {
+            alert(err.response?.data?.detail || "Checkout failed.");
+        } finally {
+            setCheckingOut(false);
         }
     };
 
@@ -110,9 +127,19 @@ function Cart() {
             </div>
 
             {items.length > 0 && (
-                <div className="flex items-center justify-between pt-4">
-                    <span className="font-display text-lg font-semibold">Subtotal</span>
-                    <span className="font-mono text-lg">£{subtotal.toFixed(2)}</span>
+                <div>
+                    <div className="flex items-center justify-between pt-4 mb-6">
+                        <span className="font-display text-lg font-semibold">Subtotal</span>
+                        <span className="font-mono text-lg">£{subtotal.toFixed(2)}</span>
+                    </div>
+
+                    <button
+                        onClick={handleCheckout}
+                        disabled={checkingOut}
+                        className="w-full bg-moss text-paper font-medium py-3 rounded-sm hover:bg-moss-light transition-colors disabled:opacity-50"
+                    >
+                        {checkingOut ? "Placing order…" : "Checkout"}
+                    </button>
                 </div>
             )}
 

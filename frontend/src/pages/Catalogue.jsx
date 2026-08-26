@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import {Link} from "react-router-dom"
 import api from "../api/api";
 
 function Catalogue() {
@@ -37,7 +38,6 @@ function Catalogue() {
 
     useEffect(() => {
         fetchProducts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [category, brand]);
 
     const addToCart = async (productId) => {
@@ -127,7 +127,11 @@ function Catalogue() {
 
                     <div key={product.id} className="border border-line rounded-sm p-6 flex flex-col">
 
-                        <h2 className="font-display font-semibold text-base mb-1">{product.name}</h2>
+                        <Link to={`/product/${product.id}`}>
+                            <h2 className="font-display font-semibold text-base mb-1 hover:text-moss transition-colors">
+                                {product.name}
+                            </h2>
+                        </Link>
 
                         <p className="text-sm text-ink/60 mb-4 flex-1">{product.description}</p>
 
